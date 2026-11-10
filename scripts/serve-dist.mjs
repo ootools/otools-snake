@@ -20,6 +20,9 @@ if (!fs.existsSync(path.join(dist, 'index.html'))) {
 const types = {
   '.html': 'text/html; charset=utf-8',
   '.js': 'text/javascript; charset=utf-8',
+  // ES 模块对 MIME 严格校验：.mjs 必须是 text/javascript，否则 import 直接被拒
+  '.mjs': 'text/javascript; charset=utf-8',
+  '.task': 'application/octet-stream',
   '.wasm': 'application/wasm',
   '.svg': 'image/svg+xml',
   '.css': 'text/css; charset=utf-8',

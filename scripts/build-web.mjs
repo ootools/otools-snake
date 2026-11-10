@@ -72,6 +72,17 @@ if (!rustMode) {
     process.exit(1);
   }
   console.log(`web 模式：已拷贝 web/ → ${dist}`);
+  // ---------------------------------------------------------------- vendor 拷贝
+  // 手势模式依赖仓库根的 vendor/（MediaPipe tasks-vision 的 js/wasm + 手部关键点模型）。
+  // dist 里的手势代码按相对路径 vendor/... 引用它们，所以构建时要把 vendor/ 整体
+  // 拷到 dist/vendor/（与 web/ 产物同级）；缺失时提示但不中断构建，此时键盘/触摸仍可玩。
+  const vendorDir = path.join(repoRoot, 'vendor');
+  if (fs.existsSync(vendorDir)) {
+    fs.cpSync(vendorDir, path.join(dist, 'vendor'), { recursive: true });
+    console.log('已拷贝 vendor/ → dist/vendor/（手势模式依赖，请勿删除）');
+  } else {
+    console.warn('警告：仓库根没有 vendor/，本次构建的手势模式不可用（键盘/触摸不受影响）。');
+  }
   for (const name of fs.readdirSync(dist)) {
     const file = path.join(dist, name);
     if (fs.statSync(file).isFile()) console.log(`  ${name} ${(fs.statSync(file).size / 1048576).toFixed(1)} MB`);

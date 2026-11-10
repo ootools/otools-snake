@@ -1,14 +1,29 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128" role="img" aria-label="Plugin">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128" role="img" aria-label="贪吃蛇">
   <defs>
-    <linearGradient id="bg-plugin" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#4f46e5"/>
-      <stop offset="100%" stop-color="#0ea5e9"/>
+    <linearGradient id="snake-bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1b3a2a"/>
+      <stop offset="100%" stop-color="#0e1f16"/>
+    </linearGradient>
+    <linearGradient id="snake-body" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#1f7a3d"/>
+      <stop offset="100%" stop-color="#7ee787"/>
     </linearGradient>
   </defs>
-  <rect width="128" height="128" rx="28" fill="url(#bg-plugin)"/>
-  <g fill="none" stroke="#fff" stroke-width="7" stroke-linejoin="round" stroke-linecap="round">
-    <!-- 拼图块轮廓：替换成你的插件图标 -->
-    <path d="M40 34 h26 a10 10 0 0 1 20 0 h6 a10 10 0 0 1 10 10 v22 a12 12 0 0 0 12 12 a12 12 0 0 0 -12 12 v6 a10 10 0 0 1 -10 10 h-6 a10 10 0 0 1 -20 0 h-26 a10 10 0 0 1 -10 -10 v-52 a10 10 0 0 1 10 -10 z"/>
-    <circle cx="64" cy="58" r="9" fill="#fff" stroke="none"/>
+  <rect width="128" height="128" rx="28" fill="url(#snake-bg)"/>
+  <!-- 淡网格纹 -->
+  <g stroke="#ffffff" stroke-opacity="0.05" stroke-width="2">
+    <path d="M32 0v128M64 0v128M96 0v128M0 32h128M0 64h128M0 96h128"/>
   </g>
+  <!-- 蛇身：S 形圆角折线 -->
+  <path d="M28 92 H56 a14 14 0 0 0 0 -28 H44 a14 14 0 0 1 0 -28 H72"
+        fill="none" stroke="url(#snake-body)" stroke-width="17"
+        stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- 蛇头 -->
+  <circle cx="82" cy="36" r="15" fill="#9bf6a5"/>
+  <circle cx="87" cy="31" r="2.6" fill="#0d1117"/>
+  <circle cx="87" cy="41" r="2.6" fill="#0d1117"/>
+  <!-- 食物：发光的红果 -->
+  <circle cx="100" cy="88" r="9" fill="#ff5d5d"/>
+  <circle cx="97" cy="85" r="2.4" fill="#ffd1d1"/>
+  <path d="M100 78 q1 -5 6 -6" fill="none" stroke="#7ee787" stroke-width="3" stroke-linecap="round"/>
 </svg>
