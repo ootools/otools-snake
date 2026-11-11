@@ -5,7 +5,7 @@
   "displayNameCN": "贪吃蛇",
   "developerName": "OTools",
   "summary": "经典贪吃蛇，键盘、触摸滑动，还可用摄像头手势隔空操控。",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "entry": "dist/index.html",
   "devUrl": "http://127.0.0.1:6544",
   "quickDev": true,
@@ -15,5 +15,11 @@
   "logo": "logo.svg",
   "icon": "🐍",
   "screenshots": [],
-  "key": ["贪吃蛇", "手势", "摄像头", "体感", "snake"]
+  "key": [
+    "贪吃蛇",
+    "手势",
+    "摄像头",
+    "体感",
+    "snake"
+  ]
 }

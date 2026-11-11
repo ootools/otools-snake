@@ -17,30 +17,45 @@ import {
   pinchDistance,
   pointingDirectionFromLandmarks,
 } from './engine/gesture-input.js';
+import { resolveVisionBundleCandidates, visionAssetUrls } from './engine/gesture-paths.js';
 
-const VISION_BUNDLE_URL = '../../vendor/tasks-vision/vision_bundle.mjs';
-const WASM_DIR = 'vendor/tasks-vision/wasm';
-const MODEL_PATH = 'vendor/models/hand_landmarker.task';
+// bundle 候选按当前布局解析（宿主 / dist 直开 / 仓库预览），wasm 与模型用文档相对绝对 URL。
+const VISION_BUNDLE_CANDIDATES = resolveVisionBundleCandidates(
+  document.baseURI || globalThis.location?.href || '',
+  import.meta.url,
+);
+const ASSET_URLS = visionAssetUrls(document.baseURI || globalThis.location?.href || '');
+const WASM_DIR = ASSET_URLS.wasmDir;
+const MODEL_PATH = ASSET_URLS.modelPath;
 
 /**
- * 动态 import vendor bundle。部分宿主把 .mjs 标成 application/octet-stream，
- * 浏览器会以 MIME 校验为由拒绝模块导入；此时兜底用 fetch 拉文本、blob URL 再导入。
+ * 动态加载 vendor bundle：对每个候选路径先直接 import（部分环境 MIME 正确可直过），
+ * 失败再 fetch 拉文本、blob URL 导入（覆盖 .mjs 被标成 application/octet-stream 的宿主协议）。
+ * 全部候选失败时抛出带尝试明细的错误，便于定位是哪个布局的路径没通。
  */
 async function importVisionBundle() {
-  try {
-    return await import(VISION_BUNDLE_URL);
-  } catch (err) {
-    console.warn('[gesture] 直接 import 失败，改用 fetch+blob 兜底：', err);
-    const res = await fetch(VISION_BUNDLE_URL);
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const source = await res.text();
-    const url = URL.createObjectURL(new Blob([source], { type: 'text/javascript' }));
+  const failures = [];
+  for (const candidate of VISION_BUNDLE_CANDIDATES) {
     try {
-      return await import(url);
-    } finally {
-      URL.revokeObjectURL(url);
+      return await import(candidate);
+    } catch (directErr) {
+      failures.push(`${candidate}（直接 import：${directErr?.message || directErr}）`);
+    }
+    try {
+      const res = await fetch(candidate);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const source = await res.text();
+      const blobUrl = URL.createObjectURL(new Blob([source], { type: 'text/javascript' }));
+      try {
+        return await import(blobUrl);
+      } finally {
+        URL.revokeObjectURL(blobUrl);
+      }
+    } catch (fetchErr) {
+      failures.push(`${candidate}（fetch+blob：${fetchErr?.message || fetchErr}）`);
     }
   }
+  throw new Error(`尝试了 ${VISION_BUNDLE_CANDIDATES.length} 个候选路径均失败：${failures.join('；')}`);
 }
 
 const ERR_MESSAGES = {
@@ -181,7 +196,7 @@ export function createGestureVision({ video, onCommand, onPinch, onFrame, onStat
         vision = await importVisionBundle();
       } catch (err) {
         console.error('[gesture] vision bundle 加载失败：', err);
-        throw { message: ERR_MESSAGES.bundle, hint: '请确认构建产物 dist/vendor/ 已完整生成。' };
+        throw { message: ERR_MESSAGES.bundle, hint: err?.message || '请确认构建产物 dist/vendor/ 已完整生成。' };
       }
       try {
         landmarker = await createLandmarker(vision);

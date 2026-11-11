@@ -9,3 +9,4 @@
  */
 import './snake-engine.test.js';
 import './gesture-input.test.js';
+import './gesture-paths.test.js';
